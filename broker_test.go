@@ -3,6 +3,7 @@ package turnpike
 import (
 	"sync"
 	"testing"
+	"time"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -41,6 +42,8 @@ func TestSubscribe(t *testing.T) {
 		testTopic := URI("turnpike.test.topic")
 		msg := &Subscribe{Request: 123, Topic: testTopic}
 		broker.Subscribe(sess, msg)
+		// broker.Subscribe() runs Send() in a separate go routine, so we need to give it time to complete
+		time.Sleep(100 * time.Millisecond)
 
 		Convey("The subscriber should have received a SUBSCRIBED message", func() {
 			sub := subscriber.received.(*Subscribed).Subscription
@@ -54,7 +57,7 @@ func TestSubscribe(t *testing.T) {
 			So(topic, ShouldEqual, testTopic)
 			_, ok = broker.routes[testTopic]
 			So(ok, ShouldBeTrue)
-			_, ok = broker.sessions[sess]
+			_, ok = broker.subscribers[sess]
 			So(ok, ShouldBeTrue)
 		})
 	})
@@ -90,6 +93,7 @@ func TestMultipleSubscribe(t *testing.T) {
 			msg := &Subscribe{Request: sess.NextRequestId(), Topic: TOPIC}
 			broker.Subscribe(sess, msg)
 		}
+		time.Sleep(100 * time.Millisecond)
 
 		Convey("There should be a map entry for each subscriber", func() {
 			So(len(broker.routes[TOPIC]), ShouldEqual, SUBSCRIBERS)
@@ -104,11 +108,14 @@ func TestUnsubscribe(t *testing.T) {
 	msg := &Subscribe{Request: 123, Topic: testTopic}
 	sess := &Session{Peer: subscriber}
 	broker.Subscribe(sess, msg)
+	time.Sleep(100 * time.Millisecond)
+
 	sub := subscriber.received.(*Subscribed).Subscription
 
 	Convey("Unsubscribing from a topic", t, func() {
 		msg := &Unsubscribe{Request: 124, Subscription: sub}
 		broker.Unsubscribe(sess, msg)
+		time.Sleep(100 * time.Millisecond)
 
 		Convey("The peer should have received an UNSUBSCRIBED message", func() {
 			unsub := subscriber.received.(*Unsubscribed).Request
@@ -120,7 +127,7 @@ func TestUnsubscribe(t *testing.T) {
 			So(ok, ShouldBeFalse)
 			_, ok = broker.routes[testTopic]
 			So(ok, ShouldBeFalse)
-			_, ok = broker.sessions[sess]
+			_, ok = broker.subscribers[sess]
 			So(ok, ShouldBeFalse)
 		})
 	})
@@ -133,11 +140,13 @@ func TestRemove(t *testing.T) {
 	testTopic := URI("turnpike.test.topic")
 	msg := &Subscribe{Request: 123, Topic: testTopic}
 	broker.Subscribe(sess, msg)
+	time.Sleep(100 * time.Millisecond)
 	sub := subscriber.received.(*Subscribed).Subscription
 
 	testTopic2 := URI("turnpike.test.topic2")
 	msg2 := &Subscribe{Request: 456, Topic: testTopic2}
 	broker.Subscribe(sess, msg2)
+	time.Sleep(100 * time.Millisecond)
 	sub2 := subscriber.received.(*Subscribed).Subscription
 
 	Convey("Removing subscriber", t, func() {
@@ -154,7 +163,7 @@ func TestRemove(t *testing.T) {
 			_, ok = broker.routes[testTopic2]
 			So(ok, ShouldBeFalse)
 
-			_, ok = broker.sessions[sess]
+			_, ok = broker.subscribers[sess]
 			So(ok, ShouldBeFalse)
 		})
 	})

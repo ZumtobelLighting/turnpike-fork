@@ -16,7 +16,7 @@ type Pad struct {
 }
 
 // NewPad creates a window which is not restricted by the terminal's
-// dimentions (unlike a Window). Pads accept all functions which can be
+// dimensions (unlike a Window). Pads accept all functions which can be
 // called on a window. It returns a pointer to a new Pad of h(eight) by
 // w(idth).
 func NewPad(h, w int) (*Pad, error) {
@@ -28,7 +28,7 @@ func NewPad(h, w int) (*Pad, error) {
 }
 
 // NoutRefresh indicates that a section of the screen should be redrawn but
-// does not update the phsyical screen until Update() is called. See
+// does not update the physical screen until Update() is called. See
 // Pad.Refresh() for details on the arguments and Window.NoutRefresh for
 // more details on the workings of this function
 func (p *Pad) NoutRefresh(py, px, sy, sx, h, w int) error {
@@ -43,14 +43,25 @@ func (p *Pad) NoutRefresh(py, px, sy, sx, h, w int) error {
 // Refresh will calculate how to update the physical screen in the most
 // efficient manor and update it. See Window.Refresh for more details.
 // The coordinates py, px specify the location on the pad from which the
-// characters we want to display are located. sy and sx specify the location
-// on the screen where this data should be displayed. h and w are the height
-// and width of the rectangle to be displayed. The coodinates and the size
-// of the rectangle must be contained within both the Pad's and Window's
-// respective areas
-func (p *Pad) Refresh(py, px, sy, sx, h, w int) error {
-	if C.prefresh(p.win, C.int(py), C.int(px), C.int(sy), C.int(sx),
-		C.int(h), C.int(w)) != C.OK {
+// characters we want to display are located. sy1 and sx1 specify the location
+// on the screen where this data should be displayed, hence the upper left
+// corner of the display area on the screen. sy2 and sx2 specify the location
+// of the lower right corner of the display area on the screen:
+//
+//   (y1,x1) +-------------+
+//           |             |
+//           |             |
+//           |             |
+//           |             |
+//           |             |
+//           |             |
+//           +-------------+ (y2, x2)
+//
+// The coordinates of the rectangle must be contained within both the Pad's
+// and Window's respective areas.
+func (p *Pad) Refresh(py, px, sy1, sx1, sy2, sx2 int) error {
+	if C.prefresh(p.win, C.int(py), C.int(px), C.int(sy1), C.int(sx1),
+		C.int(sy2), C.int(sx2)) != C.OK {
 		return errors.New("Failed to refresh pad")
 	}
 	return nil

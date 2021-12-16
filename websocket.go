@@ -29,6 +29,7 @@ type websocketPeer struct {
 	inSending   chan struct{}
 	closing     chan struct{}
 	*ConnectionConfig
+	debugURL string
 }
 
 func NewWebsocketPeer(serialization Serialization, url string, tlscfg *tls.Config, dial DialFunc) (Peer, error) {
@@ -65,6 +66,7 @@ func newWebsocketPeer(url, protocol string, serializer Serializer, payloadType i
 		payloadType:      payloadType,
 		closing:          make(chan struct{}),
 		ConnectionConfig: &ConnectionConfig{},
+		debugURL:         url,
 	}
 	go ep.run()
 
@@ -78,10 +80,13 @@ func (ep *websocketPeer) Send(msg Message) error {
 	case <-time.After(5 * time.Second):
 		log.Println(ErrWSSendTimeout.Error())
 		ep.Close()
-		return ErrWSSendTimeout
+		err := fmt.Errorf("ws peer send timeout (%s)", ep.debugURL)
+		log.Println(err.Error())
+		return err // ErrWSSendTimeout
 	case <-ep.closing:
-		log.Println(ErrWSIsClosed.Error())
-		return ErrWSIsClosed
+		err := fmt.Errorf("ws peer is closed (%s)", ep.debugURL)
+		log.Println(err.Error())
+		return err // ErrWSIsClosed
 	}
 }
 

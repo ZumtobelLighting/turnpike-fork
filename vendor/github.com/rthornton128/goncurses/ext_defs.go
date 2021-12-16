@@ -91,22 +91,22 @@ type MenuDriverReq C.int
 
 const (
 	REQ_LEFT          MenuDriverReq = C.REQ_LEFT_ITEM
-	REQ_RIGHT                       = C.REQ_RIGHT_ITEM
-	REQ_UP                          = C.REQ_UP_ITEM
-	REQ_DOWN                        = C.REQ_DOWN_ITEM
-	REQ_ULINE                       = C.REQ_SCR_ULINE
-	REQ_DLINE                       = C.REQ_SCR_DLINE
-	REQ_PAGE_DOWN                   = C.REQ_SCR_DPAGE
-	REQ_PAGE_UP                     = C.REQ_SCR_UPAGE
-	REQ_FIRST                       = C.REQ_FIRST_ITEM
-	REQ_LAST                        = C.REQ_LAST_ITEM
-	REQ_NEXT                        = C.REQ_NEXT_ITEM
-	REQ_PREV                        = C.REQ_PREV_ITEM
-	REQ_TOGGLE                      = C.REQ_TOGGLE_ITEM
-	REQ_CLEAR_PATTERN               = C.REQ_CLEAR_PATTERN
-	REQ_BACK_PATTERN                = C.REQ_BACK_PATTERN
-	REQ_NEXT_MATCH                  = C.REQ_NEXT_MATCH
-	REQ_PREV_MATCH                  = C.REQ_PREV_MATCH
+	REQ_RIGHT         MenuDriverReq = C.REQ_RIGHT_ITEM
+	REQ_UP            MenuDriverReq = C.REQ_UP_ITEM
+	REQ_DOWN          MenuDriverReq = C.REQ_DOWN_ITEM
+	REQ_ULINE         MenuDriverReq = C.REQ_SCR_ULINE
+	REQ_DLINE         MenuDriverReq = C.REQ_SCR_DLINE
+	REQ_PAGE_DOWN     MenuDriverReq = C.REQ_SCR_DPAGE
+	REQ_PAGE_UP       MenuDriverReq = C.REQ_SCR_UPAGE
+	REQ_FIRST         MenuDriverReq = C.REQ_FIRST_ITEM
+	REQ_LAST          MenuDriverReq = C.REQ_LAST_ITEM
+	REQ_NEXT          MenuDriverReq = C.REQ_NEXT_ITEM
+	REQ_PREV          MenuDriverReq = C.REQ_PREV_ITEM
+	REQ_TOGGLE        MenuDriverReq = C.REQ_TOGGLE_ITEM
+	REQ_CLEAR_PATTERN MenuDriverReq = C.REQ_CLEAR_PATTERN
+	REQ_BACK_PATTERN  MenuDriverReq = C.REQ_BACK_PATTERN
+	REQ_NEXT_MATCH    MenuDriverReq = C.REQ_NEXT_MATCH
+	REQ_PREV_MATCH    MenuDriverReq = C.REQ_PREV_MATCH
 )
 
 // Menu Options
@@ -114,7 +114,7 @@ const (
 	O_ONEVALUE   = C.O_ONEVALUE   // Only one item can be selected
 	O_SHOWDESC   = C.O_SHOWDESC   // Display item descriptions
 	O_ROWMAJOR   = C.O_ROWMAJOR   // Display in row-major order
-	O_IGNORECASE = C.O_IGNORECASE // Ingore case when pattern-matching
+	O_IGNORECASE = C.O_IGNORECASE // Ignore case when pattern-matching
 	O_SHOWMATCH  = C.O_SHOWMATCH  // Move cursor to item when pattern-matching
 	O_NONCYCLIC  = C.O_NONCYCLIC  // Don't wrap next/prev item
 )

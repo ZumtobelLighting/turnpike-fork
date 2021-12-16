@@ -6,7 +6,7 @@ import (
 	"time"
 
 	logrus "github.com/sirupsen/logrus"
-	"github.com/streamrail/concurrent-map"
+	cmap "github.com/streamrail/concurrent-map"
 )
 
 const (
@@ -192,7 +192,7 @@ func (r *Realm) doOne(c <-chan Message, sess *Session) bool {
 		}
 
 	default:
-		log.Warningf("Unhandled message:", msg.MessageType())
+		log.Warningf("Unhandled message: %d", msg.MessageType())
 	}
 	return true
 }
@@ -221,7 +221,7 @@ func redactMessage(msg Message) Message {
 
 func (r *Realm) handleSession(sess *Session) {
 	r.lock.RLock()
-	r.clients.Set(string(sess.Id), sess)
+	r.clients.Set(fmt.Sprintf("%d", sess.Id), sess)
 	r.localClient.onJoin(sess.Details)
 	r.lock.RUnlock()
 
@@ -229,7 +229,7 @@ func (r *Realm) handleSession(sess *Session) {
 		r.lock.RLock()
 		defer r.lock.RUnlock()
 
-		r.clients.Remove(string(sess.Id))
+		r.clients.Remove(fmt.Sprintf("%d", sess.Id))
 		r.Broker.RemoveSession(sess)
 		r.Dealer.RemoveSession(sess)
 		r.localClient.onLeave(sess.Id)
