@@ -78,10 +78,9 @@ func (ep *websocketPeer) Send(msg Message) error {
 	case ep.sendMsgs <- msg:
 		return nil
 	case <-time.After(5 * time.Second):
-		log.Println(ErrWSSendTimeout.Error())
-		ep.Close()
 		err := fmt.Errorf("ws peer send timeout (%s)", ep.debugURL)
 		log.Println(err.Error())
+		ep.Close()
 		return err // ErrWSSendTimeout
 	case <-ep.closing:
 		err := fmt.Errorf("ws peer is closed (%s)", ep.debugURL)
