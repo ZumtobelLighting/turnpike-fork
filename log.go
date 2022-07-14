@@ -18,6 +18,10 @@ func init() {
 	// stackLevels := []logrus.Level{}
 	//
 	// log.Hooks.Add(logrus_stack.NewHook(callerLevels, stackLevels))
+
+	// Start the websocket stats process. Do this here (instead of an init() function
+	// in websocket_stats.go) to ensure the logger is set up first.
+	InitWSStats()
 }
 
 func logErr(err error) error {
