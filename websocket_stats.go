@@ -49,7 +49,7 @@ func (s *websocketStats) formatAndClear() string {
 		s.count[WSStatsErrPeerTimeout],
 		s.count[WSStatsErrPeerClosed],
 	)
-	for _, i := range s.count {
+	for i := 0; i < WSStatsItemCount; i++ {
 		s.count[i] = 0
 	}
 	return str
