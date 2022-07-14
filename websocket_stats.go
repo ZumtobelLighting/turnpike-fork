@@ -58,6 +58,7 @@ func (s *websocketStats) formatAndClear() string {
 // Periodically log the stats then clear them for next time.
 // This gets run from the logger init function.
 func InitWSStats() {
+	log.Println("Initializing WS Stats")
 	ticker := time.NewTicker(wsStatsRate)
 	go func() {
 		for {
