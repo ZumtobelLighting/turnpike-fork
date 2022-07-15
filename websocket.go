@@ -84,13 +84,13 @@ func (ep *websocketPeer) Send(msg Message) error {
 	case <-time.After(5 * time.Second):
 		wsStats.bumpCount(WSStatsErrPeerTimeout)
 		err := fmt.Errorf("ws peer send timeout (%s)", ep.debugURL)
-		log.Println(err.Error())
+		log.Debug(err.Error())
 		ep.Close()
 		return err // ErrWSSendTimeout
 	case <-ep.closing:
 		wsStats.bumpCount(WSStatsErrPeerClosed)
 		err := fmt.Errorf("ws peer is closed (%s)", ep.debugURL)
-		log.Println(err.Error())
+		log.Debug(err.Error())
 		return err // ErrWSIsClosed
 	}
 }
