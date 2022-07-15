@@ -91,6 +91,11 @@ func newWebsocketServer(r Router) *WebsocketServer {
 	return s
 }
 
+// SetLogLevel sets the package logger's level
+func (s *WebsocketServer) SetLogLevel(level logrus.Level) {
+	log.Level = level
+}
+
 // RegisterProtocol registers a serializer that should be used for a given protocol string and payload type.
 func (s *WebsocketServer) RegisterProtocol(proto string, payloadType int, serializer Serializer) error {
 	log.Infof("RegisterProtocol: %s", proto)
