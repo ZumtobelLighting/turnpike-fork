@@ -192,7 +192,7 @@ func (r *Realm) doOne(c <-chan Message, sess *Session) bool {
 		}
 
 	default:
-		log.Warningf("Unhandled message: %d", msg.MessageType())
+		log.Warning("Unhandled message:", msg.MessageType())
 	}
 	return true
 }
