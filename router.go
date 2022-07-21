@@ -7,7 +7,7 @@ import (
 	"time"
 
 	logrus "github.com/sirupsen/logrus"
-	"github.com/streamrail/concurrent-map"
+	cmap "github.com/streamrail/concurrent-map"
 )
 
 var defaultWelcomeDetails = map[string]interface{}{
@@ -40,7 +40,7 @@ func (e AuthenticationError) Error() string {
 type Router interface {
 	Accept(Peer) error
 	Close() error
-	RegisterRealm(URI, Realm) error
+	RegisterRealm(URI, *Realm) error
 	GetLocalPeer(URI, map[string]interface{}) (Peer, error)
 	AddSessionOpenCallback(func(uint, string))
 	AddSessionCloseCallback(func(uint, string))
@@ -90,12 +90,12 @@ func (r *defaultRouter) Close() error {
 	return nil
 }
 
-func (r *defaultRouter) RegisterRealm(uri URI, realm Realm) error {
+func (r *defaultRouter) RegisterRealm(uri URI, realm *Realm) error {
 	if _, ok := r.realms.Get(string(uri)); ok {
 		return RealmExistsError(uri)
 	}
 	realm.init()
-	r.realms.Set(string(uri), &realm)
+	r.realms.Set(string(uri), realm)
 	log.Println("registered realm:", uri)
 	return nil
 }

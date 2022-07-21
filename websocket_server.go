@@ -58,7 +58,7 @@ type WebsocketServer struct {
 }
 
 // NewWebsocketServer creates a new WebsocketServer from a map of realms
-func NewWebsocketServer(realms map[string]Realm) (*WebsocketServer, error) {
+func NewWebsocketServer(realms map[string]*Realm) (*WebsocketServer, error) {
 	r := NewDefaultRouter()
 	for uri, realm := range realms {
 		if err := r.RegisterRealm(URI(uri), realm); err != nil {
@@ -72,7 +72,7 @@ func NewWebsocketServer(realms map[string]Realm) (*WebsocketServer, error) {
 // NewBasicWebsocketServer creates a new WebsocketServer with a single basic realm
 func NewBasicWebsocketServer(uri string) *WebsocketServer {
 	log.Infof("NewBasicWebsocketServer")
-	s, _ := NewWebsocketServer(map[string]Realm{uri: {}})
+	s, _ := NewWebsocketServer(map[string]*Realm{uri: {}})
 	return s
 }
 
@@ -89,6 +89,11 @@ func newWebsocketServer(r Router) *WebsocketServer {
 	s.RegisterProtocol(jsonWebsocketProtocol, websocket.TextMessage, new(JSONSerializer))
 	s.RegisterProtocol(msgpackWebsocketProtocol, websocket.BinaryMessage, new(MessagePackSerializer))
 	return s
+}
+
+// SetLogLevel sets the package logger's level
+func (s *WebsocketServer) SetLogLevel(level logrus.Level) {
+	log.Level = level
 }
 
 // RegisterProtocol registers a serializer that should be used for a given protocol string and payload type.

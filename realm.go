@@ -54,7 +54,7 @@ func (r *Realm) getPeer(details map[string]interface{}) (Peer, error) {
 }
 
 // Close disconnects all clients after sending a goodbye message
-func (r Realm) Close() {
+func (r *Realm) Close() {
 	iter := r.clients.Iter()
 	for client := range iter {
 		sess, isSession := client.Val.(*Session)
@@ -221,7 +221,7 @@ func redactMessage(msg Message) Message {
 
 func (r *Realm) handleSession(sess *Session) {
 	r.lock.RLock()
-	r.clients.Set(string(sess.Id), sess)
+	r.clients.Set(fmt.Sprintf("%d", sess.Id), sess)
 	r.localClient.onJoin(sess.Details)
 	r.lock.RUnlock()
 
@@ -229,7 +229,7 @@ func (r *Realm) handleSession(sess *Session) {
 		r.lock.RLock()
 		defer r.lock.RUnlock()
 
-		r.clients.Remove(string(sess.Id))
+		r.clients.Remove(fmt.Sprintf("%d", sess.Id))
 		r.Broker.RemoveSession(sess)
 		r.Dealer.RemoveSession(sess)
 		r.localClient.onLeave(sess.Id)
@@ -270,7 +270,7 @@ func (r *Realm) handleAuth(client Peer, details map[string]interface{}) (*Welcom
 
 // Authenticate either authenticates a client or returns a challenge message if
 // challenge/response authentication is to be used.
-func (r Realm) authenticate(details map[string]interface{}) (Message, error) {
+func (r *Realm) authenticate(details map[string]interface{}) (Message, error) {
 	log.Println("details:", details)
 	if len(r.Authenticators) == 0 && len(r.CRAuthenticators) == 0 {
 		return &Welcome{}, nil
@@ -311,7 +311,7 @@ func (r Realm) authenticate(details map[string]interface{}) (Message, error) {
 }
 
 // checkResponse determines whether the response to the challenge is sufficient to gain access to the Realm.
-func (r Realm) checkResponse(chal *Challenge, auth *Authenticate) (*Welcome, error) {
+func (r *Realm) checkResponse(chal *Challenge, auth *Authenticate) (*Welcome, error) {
 	authenticator, ok := r.CRAuthenticators[chal.AuthMethod]
 	if !ok {
 		return nil, fmt.Errorf("authentication method has been removed")

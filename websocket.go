@@ -29,6 +29,7 @@ type websocketPeer struct {
 	inSending   chan struct{}
 	closing     chan struct{}
 	*ConnectionConfig
+	debugURL string
 }
 
 func NewWebsocketPeer(serialization Serialization, url string, tlscfg *tls.Config, dial DialFunc) (Peer, error) {
@@ -69,7 +70,11 @@ func newWebsocketPeer(url, protocol string, serializer Serializer, payloadType i
 		payloadType:      payloadType,
 		closing:          make(chan struct{}),
 		ConnectionConfig: cfg,
+		debugURL:         url,
 	}
+
+	wsStats.bumpCount(WSStatsNewPeer)
+
 	go ep.run()
 
 	return ep, nil
@@ -78,18 +83,24 @@ func newWebsocketPeer(url, protocol string, serializer Serializer, payloadType i
 func (ep *websocketPeer) Send(msg Message) error {
 	select {
 	case ep.sendMsgs <- msg:
+		wsStats.bumpCount(WSStatsSend)
 		return nil
 	case <-time.After(5 * time.Second):
-		log.Println(ErrWSSendTimeout.Error())
+		wsStats.bumpCount(WSStatsErrPeerTimeout)
+		err := fmt.Errorf("ws peer send timeout (%s)", ep.debugURL)
+		log.Debug(err.Error())
 		ep.Close()
-		return ErrWSSendTimeout
+		return err // ErrWSSendTimeout
 	case <-ep.closing:
-		log.Println(ErrWSIsClosed.Error())
-		return ErrWSIsClosed
+		wsStats.bumpCount(WSStatsErrPeerClosed)
+		err := fmt.Errorf("ws peer is closed (%s)", ep.debugURL)
+		log.Debug(err.Error())
+		return err // ErrWSIsClosed
 	}
 }
 
 func (ep *websocketPeer) Receive() <-chan Message {
+	wsStats.bumpCount(WSStatsRecv)
 	return ep.messages
 }
 
@@ -128,6 +139,8 @@ func (ep *websocketPeer) Close() error {
 	if err != nil {
 		log.Warningf("Error sending close message: %s", err.Error())
 	}
+
+	wsStats.bumpCount(WSStatsClose)
 
 	return ep.conn.Close()
 }

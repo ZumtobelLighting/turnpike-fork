@@ -51,6 +51,11 @@ func CanChangeColor() bool {
 	return bool(C.bool(C.can_change_color()))
 }
 
+// Colors returns the number of colors that the terminal supports
+func Colors() int {
+	return int(C.COLORS)
+}
+
 // Get RGB values for specified colour
 func ColorContent(col int16) (int16, int16, int16) {
 	var r, g, b C.short
@@ -63,6 +68,11 @@ func ColorContent(col int16) (int16, int16, int16) {
 // accept attributes like AddChar, AttrOn/Off and Background.
 func ColorPair(pair int16) Char {
 	return Char(C.ncurses_COLOR_PAIR(C.int(pair)))
+}
+
+// ColorPairs returns the maximum number of color pairs that the terminal supports
+func ColorPairs() int {
+	return int(C.COLOR_PAIRS)
 }
 
 // CursesVersion returns the version of the ncurses library currently linked to
@@ -190,7 +200,7 @@ func IsTermResized(nlines, ncols int) bool {
 	return bool(C.is_term_resized(C.int(nlines), C.int(ncols)))
 }
 
-// Returns a string representing the value of input returned by Getch
+// Returns a string representing the value of input returned by GetChar
 func KeyString(k Key) string {
 	key, ok := keyList[k]
 	if !ok {
@@ -243,6 +253,11 @@ func ResizeTerm(nlines, ncols int) error {
 	return nil
 }
 
+// Sets the delay from when the escape key is pressed until recognition.
+func SetEscDelay(size int) {
+	C.goncurses_set_escdelay(C.int(size))
+}
+
 // Enables colors to be displayed. Will return an error if terminal is not
 // capable of displaying colors
 func StartColor() error {
@@ -277,7 +292,7 @@ func Update() error {
 
 // UseDefaultColors tells the curses library to assign the terminal's default
 // foreground and background colors to color number -1. This will allow you to
-// call InitPair(x, -1, -1) to set both the foreground and backgroun colours
+// call InitPair(x, -1, -1) to set both the foreground and background colours
 // of pair x to the terminal's default. This function can fail if the terminal
 // does not support certain ncurses features like orig_pair or initialize_pair.
 func UseDefaultColors() error {
@@ -291,4 +306,15 @@ func UseDefaultColors() error {
 // variables should be used or not
 func UseEnvironment(use bool) {
 	C.use_env(C.bool(use))
+}
+
+// SetTabSize allows for modification of the tab width. This setting is global
+// and affects all windows.
+func SetTabSize(tabSize int) {
+	C.TABSIZE = C.int(tabSize)
+}
+
+// TabSize returns the configured tab width.
+func TabSize() int {
+	return int(C.TABSIZE)
 }
